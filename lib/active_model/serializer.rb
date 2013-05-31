@@ -291,12 +291,12 @@ module ActiveModel
       end
     end
 
-    attr_reader :object, :options
+    attr_reader :object, :_options
 
     def initialize(object, options={})
-      @object, @options = object, options
+      @object, @_options = object, options
 
-      scope_name = @options[:scope_name]
+      scope_name = @_options[:scope_name]
       if scope_name && !respond_to?(scope_name)
         self.class.class_eval do
           define_method scope_name, lambda { scope }
@@ -317,7 +317,7 @@ module ActiveModel
     end
 
     def url_options
-      @options[:url_options] || {}
+      @_options[:url_options] || {}
     end
 
     # Returns a json representation of the serializable
@@ -346,23 +346,23 @@ module ActiveModel
     end
 
     def include?(name)
-      return false if @options.key?(:only) && !Array(@options[:only]).include?(name)
-      return false if @options.key?(:except) && Array(@options[:except]).include?(name)
+      return false if @_options.key?(:only) && !Array(@_options[:only]).include?(name)
+      return false if @_options.key?(:except) && Array(@_options[:except]).include?(name)
       send INCLUDE_METHODS[name]
     end
 
     def include!(name, options={})
-      hash = @options[:hash]
-      unique_values = @options[:unique_values] ||= {}
+      hash = @_options[:hash]
+      unique_values = @_options[:unique_values] ||= {}
 
       node = options[:node] ||= @node
       value = options[:value]
 
       if options[:include] == nil
-        if @options.key?(:include)
-          options[:include] = @options[:include].include?(name)
-        elsif @options.include?(:exclude)
-          options[:include] = !@options[:exclude].include?(name)
+        if @_options.key?(:include)
+          options[:include] = @_options[:include].include?(name)
+        elsif @_options.include?(:exclude)
+          options[:include] = !@_options[:exclude].include?(name)
         end
       end
 
@@ -435,7 +435,7 @@ module ActiveModel
 
     # Returns options[:scope]
     def scope
-      @options[:scope]
+      @_options[:scope]
     end
 
     alias :read_attribute_for_serialization :send
@@ -462,14 +462,14 @@ module ActiveModel
   # Provides a constant interface for all items, particularly
   # for ArraySerializer.
   class DefaultSerializer
-    attr_reader :object, :options
+    attr_reader :object, :_options
 
     def initialize(object, options={})
-      @object, @options = object, options
+      @object, @_options = object, options
     end
 
     def serializable_hash
-      @object.as_json(@options)
+      @object.as_json(@_options)
     end
   end
 end
